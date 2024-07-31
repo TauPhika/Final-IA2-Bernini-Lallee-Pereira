@@ -30,9 +30,9 @@ public class Waypoint : MonoBehaviour
 	void OnDrawGizmos()
     {
 		Gizmos.color = Color.white;
-		Gizmos.DrawWireSphere(transform.position, 0.3f);
+		Gizmos.DrawWireSphere(transform.position, 1f);
 		Gizmos.color = Color.blue;
-		foreach(var wp in adyacent)
+		if(adyacent != default) foreach(var wp in adyacent)
         {
             Gizmos.DrawLine(transform.position, wp.transform.position);
 		}
