@@ -56,52 +56,52 @@ public class Planner : MonoBehaviour
         {
             //Estos valores de aca los pueden pasar a mano pero tienen que coordinar on el estado del mundo actual.
             //Lo ideal es que consiga el estado de todas las variables proceduralmente, pero no es necesario.
-            playerHP = 88,
-            values = new Dictionary<string, bool>() //Eliminar!
+            //playerHP = 88,
+            //values = new Dictionary<string, bool>() //Eliminar!
         };
 
 
         //Si uso items modulares:
-        initial.worldState.values = observedState; //le asigno los valores actuales, conseguidos antes
-        initial.worldState.values["doorOpen"] = false; //agrego el bool "doorOpen"
+        //initial.worldState.values = observedState; //le asigno los valores actuales, conseguidos antes
+        //initial.worldState.values["doorOpen"] = false; //agrego el bool "doorOpen"
 
         //Calculo las acciones
         var actions = CreatePossibleActionsList();
 
         #region opcional
-        foreach (var item in initial.worldState.values)
-        {
-            Debug.Log(item.Key + " ---> " + item.Value);
-        }
+        //foreach (var item in initial.worldState.values)
+        //{
+        //    Debug.Log(item.Key + " ---> " + item.Value);
+        //}
         #endregion
 
         //Es opcional, no es necesario buscar por un nodo que cumpla perfectamente con las condiciones
         GoapState goal = new GoapState();
         //goal.values["has" + ItemType.Key.ToString()] = true;
-        goal.worldState.values["has" + ItemType.PastaFrola.ToString()] = true;
+        //goal.worldState.values["has" + ItemType.PastaFrola.ToString()] = true;
         //goal.values["has"+ ItemType.Mace.ToString()] = true;
         //goal.values["dead" + ItemType.Entity.ToString()] = true;}
 
 
         //Crear la heuristica personalizada para no calcular nodos de mas
-        Func<GoapState, float> heuristic = (curr) =>
-        {
-            int count = 0;
-            string key = "has" + ItemType.PastaFrola.ToString();
-            if (!curr.worldState.values.ContainsKey(key) || !curr.worldState.values[key])
-                count++;
-            if (curr.worldState.playerHP <= 45)
-                count++;
-            return count;
-        };
+        //Func<GoapState, float> heuristic = (curr) =>
+        //{
+        //    int count = 0;
+        //    string key = "has" + ItemType.PastaFrola.ToString();
+        //    if (!curr.worldState.values.ContainsKey(key) || !curr.worldState.values[key])
+        //        count++;
+        //    if (curr.worldState.playerHP <= 45)
+        //        count++;
+        //    return count;
+        //};
 
         //Esto seria el reemplazo de goal, donde se pide que cumpla con las condiciones pasadas.
-        Func<GoapState, bool> objective = (curr) =>
-         {
-             string key = "has" + ItemType.PastaFrola.ToString();
-             return curr.worldState.values.ContainsKey(key) && curr.worldState.values["has" + ItemType.PastaFrola.ToString()]
-                    && curr.worldState.playerHP > 45;
-         };
+        //Func<GoapState, bool> objective = (curr) =>
+        // {
+        //     string key = "has" + ItemType.PastaFrola.ToString();
+        //     return curr.worldState.values.ContainsKey(key) && curr.worldState.values["has" + ItemType.PastaFrola.ToString()]
+        //            && curr.worldState.playerHP > 45;
+        // };
 
         #region Opcional
         var actDict = new Dictionary<string, ActionEntity>() {
@@ -111,29 +111,29 @@ public class Planner : MonoBehaviour
         };
         #endregion
 
-        var plan = Goap.Execute(initial, null, objective, heuristic, actions);
+        //var plan = Goap.Execute(initial, null, objective, heuristic, actions);
 
-        if (plan == null)
-            Debug.Log("Couldn't plan");
-        else
-        {
-            GetComponent<Guy>().ExecutePlan(
-                plan
-                .Select(a =>
-                {
-                    Item i2 = everything.FirstOrDefault(i => i.type == a.item);
-                    if (actDict.ContainsKey(a.Name) && i2 != null)
-                    {
-                        return Tuple.Create(actDict[a.Name], i2);
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }).Where(a => a != null)
-                .ToList()
-            );
-        }
+        //if (plan == null)
+        //    Debug.Log("Couldn't plan");
+        //else
+        //{
+        //    GetComponent<Guy>().ExecutePlan(
+        //        plan
+        //        .Select(a =>
+        //        {
+        //            Item i2 = everything.FirstOrDefault(i => i.type == a.item);
+        //            if (actDict.ContainsKey(a.Name) && i2 != null)
+        //            {
+        //                return Tuple.Create(actDict[a.Name], i2);
+        //            }
+        //            else
+        //            {
+        //                return null;
+        //            }
+        //        }).Where(a => a != null)
+        //        .ToList()
+        //    );
+        //}
     }
 
     private List<GoapAction> CreatePossibleActionsList()
@@ -141,31 +141,31 @@ public class Planner : MonoBehaviour
         return new List<GoapAction>()
         {
             //Ejemplo de como serian las acciones nuevas
-              new GoapAction("Kill")
-                .SetCost(1f)
-                .SetItem(ItemType.Entity) //Si no uso items esto lo puedo quitar
-                //No usar mas de un Pre con las lambdas!!! (No hacer .Pre(x => x).Pre(x => x))
-                .Pre((gS)=>
-                {
-                    //Agrego las precondiciones en base a las variables de gs.WorldState
-                    return gS.worldState.values.ContainsKey("dead"+ ItemType.Entity.ToString()) &&
-                           gS.worldState.values.ContainsKey("accessible"+ ItemType.Entity.ToString()) &&
-                           gS.worldState.values.ContainsKey("has"+ ItemType.Mace.ToString()) &&
+              //new GoapAction("Kill")
+              //  .SetCost(1f)
+              //  .SetItem(ItemType.Entity) //Si no uso items esto lo puedo quitar
+              //  //No usar mas de un Pre con las lambdas!!! (No hacer .Pre(x => x).Pre(x => x))
+              //  .Pre((gS)=>
+              //  {
+              //      //Agrego las precondiciones en base a las variables de gs.WorldState
+              //      return gS.worldState.values.ContainsKey("dead"+ ItemType.Entity.ToString()) &&
+              //             gS.worldState.values.ContainsKey("accessible"+ ItemType.Entity.ToString()) &&
+              //             gS.worldState.values.ContainsKey("has"+ ItemType.Mace.ToString()) &&
                             
-                           //Lo pedido es completarlo de la siguiente manera sin depender del diccionario de values
-                           //(excepto que se usen los items)
-                           gS.worldState.playerHP > 50;
-                })
-                //Ejemplo de setteo de Effect
-                .Effect((gS) =>
-                    {
-                        gS.worldState.values["dead"+ ItemType.Entity.ToString()] = true;
-                        gS.worldState.values["accessible"+ ItemType.Key.ToString()] = true;
-                        return gS;
-                    }
-                )
+              //             //Lo pedido es completarlo de la siguiente manera sin depender del diccionario de values
+              //             //(excepto que se usen los items)
+              //             gS.worldState.playerHP > 50;
+              //  })
+              //  //Ejemplo de setteo de Effect
+              //  .Effect((gS) =>
+              //      {
+              //          gS.worldState.values["dead"+ ItemType.Entity.ToString()] = true;
+              //          gS.worldState.values["accessible"+ ItemType.Key.ToString()] = true;
+              //          return gS;
+              //      }
+              //  )
 
-            , new GoapAction("Loot")
+             new GoapAction("Loot")
                 .SetCost(1f)
                 .SetItem(ItemType.Key)
                 .Pre("otherHas"+ ItemType.Key.ToString(), true)

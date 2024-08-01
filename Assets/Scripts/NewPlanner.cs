@@ -9,10 +9,10 @@ public class NewPlanner : MonoBehaviour
     private readonly List<Tuple<Vector3, Vector3>> _debugRayList = new List<Tuple<Vector3, Vector3>>();
 
     [Header("ACTION COSTS")]
-    [Range(5, 10)] public int GoToWork;
-    [Range(6, 10)] public int Bargain;
-    [Range(3, 6)] public int BuyItem, BuyWeapon, RobItem;
-    [Range(1, 4)] public int Intimidate, WaitForRestocking;
+    [Range(5, 10)] public int GoToWork = 9;
+    [Range(6, 10)] public int Bargain = 7;
+    [Range(3, 6)] public int BuyItem = 3, BuyWeapon = 4, RobItem = 5;
+    [Range(1, 4)] public int Intimidate = 2, WaitForRestocking = 1;
 
     private void Start()
     {
@@ -69,28 +69,28 @@ public class NewPlanner : MonoBehaviour
             HasWeapon = false,
             HasItem = false,
 
-            values = new Dictionary<string, bool>() //Eliminar!
+            //values = new Dictionary<string, bool>() //Eliminar!
         };
 
 
         //Si uso items modulares:
-        initial.worldState.values = observedState; //le asigno los valores actuales, conseguidos antes
-        initial.worldState.values["doorOpen"] = false; //agrego el bool "doorOpen"
+        //initial.worldState.values = observedState; //le asigno los valores actuales, conseguidos antes
+        //initial.worldState.values["doorOpen"] = false; //agrego el bool "doorOpen"
 
         //Calculo las acciones
         var actions = CreatePossibleActionsList();
 
         #region opcional
-        foreach (var item in initial.worldState.values)
-        {
-            Debug.Log(item.Key + " ---> " + item.Value);
-        }
+        //foreach (var item in initial.worldState.values)
+        //{
+        //    Debug.Log(item.Key + " ---> " + item.Value);
+        //}
         #endregion
 
         //Es opcional, no es necesario buscar por un nodo que cumpla perfectamente con las condiciones
         GoapState goal = new GoapState();
         //goal.values["has" + ItemType.Key.ToString()] = true;
-        goal.worldState.values["has" + ItemType.PastaFrola.ToString()] = true;
+        //goal.worldState.values["has" + ItemType.PastaFrola.ToString()] = true;
         //goal.values["has"+ ItemType.Mace.ToString()] = true;
         //goal.values["dead" + ItemType.Entity.ToString()] = true;}
 
@@ -148,37 +148,45 @@ public class NewPlanner : MonoBehaviour
         {
             // Va a trabajar para dejar pasar el tiempo y conseguir plata, siempre y cuando no sospechen de el.
             new GoapAction("GoToWork")
-            .SetCost(GoToWork)
+            .SetCost((float)GoToWork)
             .SetItem(ItemType.Office)
             .Pre((w) =>
             {
                 return w.worldState.AlertPercentage <= 0.25f;
             })
-            .NewEffect((w) =>
+            .Effect((w) =>
             {
-                w.worldState.MoneyAmount += 5;
-                w.worldState.ItemInStock = "frutilla";               
+                return new GoapState(w, (nw) =>
+                {
+                    nw.worldState.MoneyAmount += 5;
+                    nw.worldState.ItemInStock = "frutilla";
+                });
+                            
             }),
 
             
             // Va a su casa y espera hasta que restockeen las frutillas si es que no estan en stock todavia.
             new GoapAction("WaitForRestocking")
-            .SetCost(WaitForRestocking)
+            .SetCost((float)WaitForRestocking)
             .SetItem(ItemType.Home)
             .Pre((w) =>
             {
                 return w.worldState.ItemInStock != "frutilla";
             })
-            .NewEffect((w) =>
+            .Effect((w) =>
             {
-                w.worldState.ItemInStock = "frutilla";
+                return new GoapState(w, (nw) =>
+                {
+                    nw.worldState.ItemInStock = "frutilla";
+                });
+                
             }),
 
 
             // Regatea con el verdulero para que le deje las frutillas mas baratas si tiene algo para ofrecer
             // y no es tan sospechoso.
             new GoapAction("Bargain")
-            .SetCost(Bargain)
+            .SetCost((float)Bargain)
             .SetItem(ItemType.Entity)
             .Pre((w) =>
             {
@@ -186,15 +194,19 @@ public class NewPlanner : MonoBehaviour
                 && w.worldState.AlertPercentage <= 0.5f
                 && w.worldState.ItemInStock == "frutilla";
             })
-            .NewEffect((w) =>
+            .Effect((w) =>
             {
-                w.worldState.ItemPrice = w.worldState.MoneyAmount;
+                return new GoapState(w, (nw) =>
+                {
+                    nw.worldState.ItemPrice = nw.worldState.MoneyAmount;
+                });
+                
             }),
 
 
             // Si las frutillas estan disponibles, no es sospechoso y tiene plata, las compra.
             new GoapAction("BuyItem")
-            .SetCost(BuyItem)
+            .SetCost((float)BuyItem)
             .SetItem(ItemType.Frutilla)
             .Pre((w) =>
             {
@@ -202,34 +214,41 @@ public class NewPlanner : MonoBehaviour
                 && w.worldState.AlertPercentage <= 0.5f
                 && w.worldState.ItemInStock == "frutilla";
             })
-            .NewEffect((w) =>
+            .Effect((w) =>
             {
                 // OBJETIVO CUMPLIDO
-                w.worldState.HasItem = true;
+                return new GoapState(w, (nw) => 
+                { 
+                    nw.worldState.HasItem = true; 
+                });
             }),
 
 
             // Compra un arma (si la puede pagar y no la tiene ya) para facilitar la coleccion de frutillas.
             new GoapAction("BuyWeapon")
-            .SetCost(BuyItem)
+            .SetCost((float)BuyWeapon)
             .SetItem(ItemType.Weapon)
             .Pre((w) =>
             {
                 return w.worldState.MoneyAmount >= 3
                 && w.worldState.HasWeapon == false;
             })
-            .NewEffect((w) =>
+            .Effect((w) =>
             {
-                w.worldState.HasWeapon = true;
-                w.worldState.AlertPercentage += 0.5f;
-                w.worldState.MoneyAmount -= 3;
+                return new GoapState(w, (nw) =>
+                {
+                    nw.worldState.HasWeapon = true;
+                    nw.worldState.AlertPercentage += 0.5f;
+                    nw.worldState.MoneyAmount -= 3;
+                });
+                
             }),
 
 
             // Usa el arma y las sospechas sobre el para intimidar al verdulero y que baje el precio
             // de las frutillas.
             new GoapAction("Intimidate")
-            .SetCost(Intimidate)
+            .SetCost((float)Intimidate)
             .SetItem(ItemType.Entity)
             .Pre((w) =>
             {
@@ -237,27 +256,35 @@ public class NewPlanner : MonoBehaviour
                 && w.worldState.HasWeapon == true
                 && w.worldState.ItemInStock == "frutilla";
             })
-            .NewEffect((w) =>
+            .Effect((w) =>
             {
-                w.worldState.ItemPrice = w.worldState.MoneyAmount;
+                return new GoapState(w, (nw) =>
+                {
+                    nw.worldState.ItemPrice = nw.worldState.MoneyAmount;
+                });
+                
             }),
 
             
             // Asalta la verduleria con el arma y se lleva las frutillas si es que estan en stock.
             new GoapAction("RobItem")
-            .SetCost(RobItem)
+            .SetCost((float)RobItem)
             .SetItem(ItemType.Frutilla)
             .Pre((w) =>
             {
                 return w.worldState.HasWeapon == true
                 && w.worldState.ItemInStock == "frutilla";
             })
-            .NewEffect((w) =>
+            .Effect((w) =>
             {
-                w.worldState.AlertPercentage += 0.5f;
+                return new GoapState(w, (nw) =>
+                {
+                    nw.worldState.AlertPercentage += 0.5f;
 
-                // OBJETIVO CUMPLIDO
-                w.worldState.HasItem = true;
+                    // OBJETIVO CUMPLIDO
+                    nw.worldState.HasItem = true;
+                });
+                
             }),
 
         };
