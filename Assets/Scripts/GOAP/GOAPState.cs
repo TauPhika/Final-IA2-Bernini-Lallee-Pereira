@@ -5,7 +5,6 @@ public class GoapState
 {
     public WorldState worldState;
 
-
     public GoapAction generatingAction = null;
     public int step = 0;
 
@@ -15,7 +14,9 @@ public class GoapState
         generatingAction = gen;
         worldState = new WorldState()
         {
+           
             values = new Dictionary<string, bool>() // Muy importane inicializarlo en este caso
+
         };
     }
 
@@ -58,6 +59,13 @@ public class GoapState
 //Aca hay una mezcla de lo  anterior con lo nuevo, no necesariamente tiene que haber un diccionario aca adentro
 public struct WorldState
 {
+    public int MoneyAmount;
+    public int ItemPrice;
+    public string ItemInStock;
+    public float AlertPercentage;
+    public bool HasWeapon;
+    public bool HasItem;
+
     public int playerHP;
     public Dictionary<string, bool> values; //Eliminar y utilizar todas las variables como playerHP
 
@@ -66,6 +74,12 @@ public struct WorldState
     {
         return new WorldState()
         {
+            MoneyAmount = this.MoneyAmount,
+            ItemPrice = this.ItemPrice,
+            ItemInStock = this.ItemInStock,
+            AlertPercentage = this.AlertPercentage,
+            HasWeapon = this.HasWeapon,
+            HasItem = this.HasItem,
             playerHP = this.playerHP,
             values = this.values.ToDictionary(kv => kv.Key, kv => kv.Value) //Eliminar!!
         };

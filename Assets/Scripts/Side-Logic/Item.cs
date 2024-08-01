@@ -9,6 +9,11 @@ public enum ItemType
 	Entity,
 	Mace,
 	PastaFrola,
+
+	Weapon,
+	Office,
+	Home,
+	Frutilla,
 }
 
 public class Item : MonoBehaviour
@@ -33,6 +38,7 @@ public class Item : MonoBehaviour
 
 	private void Start ()
     {
+		if (type == ItemType.Frutilla) gameObject.SetActive(false);	
 		_wp = Navigation.instance.NearestTo(transform.position);
 		_wp.nearbyItems.Add(this);
 	}
@@ -47,6 +53,8 @@ public class Item : MonoBehaviour
 		}
 		Destroy(gameObject);
 	}
+
+	public void Restock() => gameObject.SetActive(true);
 
 	private void OnDestroy()
     {

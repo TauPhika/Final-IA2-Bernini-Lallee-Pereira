@@ -13,6 +13,7 @@ public enum ActionEntity
 	FailedStep,
 	Open,
 	Success
+	
 }
 
 public class Guy : MonoBehaviour
@@ -28,11 +29,11 @@ public class Guy : MonoBehaviour
 		Debug.Log("PerformAttack",other.gameObject);
 		if(other != _target) return;
 
-		var mace = _ent.items.FirstOrDefault(it => it.type == ItemType.Mace);
-		if(mace) {
+		var weapon = _ent.items.FirstOrDefault(it => it.type == ItemType.Weapon);
+		if(weapon) {
 			other.Kill();
 			if(other.type == ItemType.Door)
-				Destroy(_ent.Removeitem(mace).gameObject);
+				Destroy(_ent.Removeitem(weapon).gameObject);
 			_fsm.Feed(ActionEntity.NextStep);
 		}
 		else
@@ -51,6 +52,11 @@ public class Guy : MonoBehaviour
 		}
 		else
 			_fsm.Feed(ActionEntity.FailedStep);
+	}
+
+	void PerformRestock(Entity us , Item other)
+	{
+		if(other.type == ItemType.Frutilla) other.Restock();
 	}
 
 	private void PerformPickUp(Entity us, Item other) {

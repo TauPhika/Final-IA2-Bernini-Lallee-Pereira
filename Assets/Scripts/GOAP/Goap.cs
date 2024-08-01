@@ -24,7 +24,7 @@ public class Goap : MonoBehaviour
 
                 //en este Where se evaluan las precondiciones, al ser un diccionario de <string,bool> solo se chequea que todas las variables concuerdes
                 //En caso de ser un Func<...,bool> se utilizaria ese func de cada estado para saber si cumple o no
-                return actions.Where(action => action.preconditions.All(kv => kv.In(curr.worldState.values))) //Quitar este Where si no se usa el diccionario
+                return actions//.Where(action => action.preconditions.All(kv => kv.In(curr.worldState.values))) //Quitar este Where si no se usa el diccionario
                               .Where(a => a.Preconditions(curr)) // Dejar solo esto si se chequean todas las precondiciones con lambdas
                               .Aggregate(new FList<AStarNormal<GoapState>.Arc>(), (possibleList, action) =>
                               {

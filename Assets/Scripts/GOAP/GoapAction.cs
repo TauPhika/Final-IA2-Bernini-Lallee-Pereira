@@ -14,6 +14,7 @@ public class GoapAction
     public Dictionary<string, bool> effects { get; private set; }
 
     public Func<GoapState, GoapState> Effects;
+    public Action<GoapState> NewEffects;
 
     public float Cost { get; private set; }
 
@@ -68,6 +69,14 @@ public class GoapAction
     public GoapAction Effect(Func<GoapState, GoapState> e)
     {
         Effects =e;
+        return this;
+        
+    }
+    
+    // Para no tener que devolver un GoapState
+    public GoapAction NewEffect(Action<GoapState> e)
+    {
+        NewEffects = e;
         return this;
     }
 
