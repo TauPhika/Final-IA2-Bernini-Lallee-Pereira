@@ -25,9 +25,9 @@ public class Guy : MonoBehaviour
 
 	IEnumerable<Tuple<ActionEntity, Item>> _plan;
 
-	private void PerformAttack(Entity us, Item other) {
-		Debug.Log("PerformAttack",other.gameObject);
-		if(other != _target) return;
+	private bool PerformAttack(Entity us, Item other) {
+		Debug.Log($"PerformAttack on {other.name}",other.gameObject);
+		//if(other != _target) return;
 
 		var weapon = _ent.items.FirstOrDefault(it => it.type == ItemType.Weapon);
 		if(weapon) {
@@ -35,23 +35,28 @@ public class Guy : MonoBehaviour
 			if(other.type == ItemType.Door)
 				Destroy(_ent.Removeitem(weapon).gameObject);
 			_fsm.Feed(ActionEntity.NextStep);
+			return true;
 		}
 		else
 			_fsm.Feed(ActionEntity.FailedStep);
+		return false;
 	}
 
-	private void PerformOpen(Entity us, Item other) {
-		if(other != _target) return;
+	private bool PerformOpen(Entity us, Item other) {
+        //if(other != _target) return;
 
-		var key = _ent.items.FirstOrDefault(it => it.type == ItemType.Key);
+        Debug.Log($"PerformOpen on {other.name}", other.gameObject);
+        var key = _ent.items.FirstOrDefault(it => it.type == ItemType.Key);
 		var door = other.GetComponent<Door>();
 		if(door && key) {
 			door.Open();
 			Destroy(_ent.Removeitem(key).gameObject);
 			_fsm.Feed(ActionEntity.NextStep);
+			return true;
 		}
 		else
 			_fsm.Feed(ActionEntity.FailedStep);
+		return true;
 	}
 
 	void PerformRestock(Entity us , Item other)
@@ -59,11 +64,13 @@ public class Guy : MonoBehaviour
 		if(other.type == ItemType.Frutilla) other.Restock();
 	}
 
-	private void PerformPickUp(Entity us, Item other) {
-		if(other != _target) return;
+	private bool PerformPickUp(Entity us, Item other) {
+        //if(other != _target) return;
 
-		_ent.AddItem(other);
+        Debug.Log($"PerformPickUp on {other.name}", other.gameObject);
+        _ent.AddItem(other);
 		_fsm.Feed(ActionEntity.NextStep);
+		return true;
 	}
 
 	private void NextStep(Entity ent, Waypoint wp, bool reached) {
@@ -92,20 +99,20 @@ public class Guy : MonoBehaviour
 
 		go.OnExit += a => { _ent.OnReachDestination -= NextStep; };
 
-        kill.OnEnter += a => {
-			_ent.GoTo(_target.transform.position);
-			_ent.OnHitItem += PerformAttack;
-		};
+  //      kill.OnEnter += a => {
+		//	_ent.GoTo(_target.transform.position);
+		//	_ent.OnHitItem += PerformAttack;
+		//};
 
-		kill.OnExit += a => _ent.OnHitItem -= PerformAttack;
+		//kill.OnExit += a => _ent.OnHitItem -= PerformAttack;
 
-		failStep.OnEnter += a => { _ent.Stop(); Debug.Log("Plan failed"); };
+		//failStep.OnEnter += a => { _ent.Stop(); Debug.Log("Plan failed"); };
 
-		pickup.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformPickUp; };
-		pickup.OnExit += a => _ent.OnHitItem -= PerformPickUp;
+		//pickup.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformPickUp; };
+		//pickup.OnExit += a => _ent.OnHitItem -= PerformPickUp;
 
-		open.OnEnter += a => { if (_target != null) print(_target.transform.position); _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformOpen; };
-		open.OnExit += a => _ent.OnHitItem -= PerformOpen;
+		//open.OnEnter += a => { if (_target != null) _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformOpen; };
+		//open.OnExit += a => _ent.OnHitItem -= PerformOpen;
 
 		bridgeStep.OnEnter += a => {
 			var step = _plan.FirstOrDefault();
@@ -140,15 +147,61 @@ public class Guy : MonoBehaviour
 		_fsm = new EventFSM<ActionEntity>(idle, any);
     }
 
+	IEnumerator Execution()
+	{
+		int steps = 0;
+		foreach(var step in _plan) 
+		{
+            steps++;
+
+            Debug.Log("");
+            Debug.Log($"----- BEGIN STEP {steps} -----");
+			Debug.Log("");
+			
+			print($"EXECUTING STEP {steps}: heading towards {step.Item2.name} at {step.Item2.transform.position} in order to {step.Item1}");
+			//print($"EXECUTING NEXT STEP: heading towards {step.Item2.name} at {step.Item2.transform.position} in order to {step.Item1}");
+
+			_ent.enabled = true;
+			_ent.GoTo(step.Item2.transform.position);
+			print("Applying movement direction: " + _ent.Vel());
+
+			var stepComplete = false;
+			switch(step.Item1)
+			{
+				case ActionEntity.PickUp: stepComplete = PerformPickUp(_ent, step.Item2); break;
+				case ActionEntity.Open: stepComplete = PerformOpen(_ent, step.Item2); break;
+				case ActionEntity.Kill: stepComplete = PerformAttack(_ent, step.Item2); break;
+				case ActionEntity.Success: Debug.Log("Success"); victoryDance = true; break;
+				default: Debug.Log("Paso otra cosa"); break;
+			}
+
+			yield return new WaitUntil(() => stepComplete == true);
+			yield return new WaitForSeconds(1.66f);
+		}
+
+		if (_plan.Count() <= 0)
+		{
+			_fsm.Feed(ActionEntity.Success);
+			Debug.Log("Success");
+			victoryDance = true;
+		}
+
+	}
+
 	public void ExecutePlan(List<Tuple<ActionEntity, Item>> plan) {
 		_plan = plan;
 		print(plan.Count);
-		_fsm.Feed(ActionEntity.NextStep);
+		//_fsm.Feed(ActionEntity.NextStep);
+
+		StartCoroutine(Execution());
 	}
 
+	bool victoryDance = false;
 	private void Update ()
     {
 		//Never forget
         _fsm.Update();
+
+		if(victoryDance) { _ent.Jump(); }
 	}
 }

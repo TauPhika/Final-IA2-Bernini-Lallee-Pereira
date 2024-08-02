@@ -78,6 +78,7 @@ public class AStarNormal<Node> where Node : class
                     state.fs[ne.endpoint] = gNeighbour + h(ne.endpoint, to);
                 }
             }
+
         }
 
 		if(!state.finished)

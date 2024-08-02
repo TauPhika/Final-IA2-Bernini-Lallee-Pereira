@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using Random = UnityEngine.Random;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 
 public class Entity : MonoBehaviour
@@ -23,6 +24,7 @@ public class Entity : MonoBehaviour
 	
 	List<Item> _items;
 	Vector3 _vel;
+    public Vector3 Vel() { return _vel; }
 	bool _onFloor;
 	string _label;
 	int _number;

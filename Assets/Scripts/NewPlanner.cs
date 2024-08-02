@@ -115,11 +115,11 @@ public class NewPlanner : MonoBehaviour
               { "Kill"  , ActionEntity.Kill }
             , { "Pickup", ActionEntity.PickUp }
             , { "Open"  , ActionEntity.Open }
-            , { "WaitForRestocking" , ActionEntity.PickUp}
-            , { "BuyWeapon" , ActionEntity.Open}
+            , { "WaitForRestocking" , ActionEntity.Open}
+            , { "BuyWeapon" , ActionEntity.PickUp}
             , { "Bargain" , ActionEntity.Kill}
             , { "BuyItem" , ActionEntity.PickUp}
-            , { "RobItem" , ActionEntity.Kill}
+            , { "RobItem" , ActionEntity.PickUp}
             , { "Intimidate" , ActionEntity.Open}
             , { "GoToWork" , ActionEntity.PickUp}
         };
@@ -166,12 +166,9 @@ public class NewPlanner : MonoBehaviour
             })
             .Effect((w) =>
             {
-                return new GoapState(w, (nw) =>
-                {
-                    nw.worldState.MoneyAmount += 5;
-                    nw.worldState.ItemInStock = "frutilla";
-                });
-                            
+                w.worldState.MoneyAmount += 5;
+                w.worldState.ItemInStock = "frutilla";
+                return w;                          
             }),
 
             
@@ -185,11 +182,8 @@ public class NewPlanner : MonoBehaviour
             })
             .Effect((w) =>
             {
-                return new GoapState(w, (nw) =>
-                {
-                    nw.worldState.ItemInStock = "frutilla";
-                });
-                
+                w.worldState.ItemInStock = "frutilla";
+                return w;
             }),
 
 
@@ -197,7 +191,7 @@ public class NewPlanner : MonoBehaviour
             // y no es tan sospechoso.
             new GoapAction("Bargain")
             .SetCost(Bargain)
-            .SetItem(ItemType.Entity)
+            .SetItem(ItemType.Door)
             .Pre((w) =>
             {
                 return w.worldState.MoneyAmount >= 5
@@ -206,11 +200,8 @@ public class NewPlanner : MonoBehaviour
             })
             .Effect((w) =>
             {
-                return new GoapState(w, (nw) =>
-                {
-                    nw.worldState.ItemPrice = nw.worldState.MoneyAmount;
-                });
-                
+                w.worldState.ItemPrice = w.worldState.MoneyAmount;
+                return w;
             }),
 
 
@@ -227,10 +218,8 @@ public class NewPlanner : MonoBehaviour
             .Effect((w) =>
             {
                 // OBJETIVO CUMPLIDO
-                return new GoapState(w, (nw) => 
-                { 
-                    nw.worldState.HasItem = true; 
-                });
+                w.worldState.HasItem = true;
+                return w;
             }),
 
 
@@ -245,13 +234,10 @@ public class NewPlanner : MonoBehaviour
             })
             .Effect((w) =>
             {
-                return new GoapState(w, (nw) =>
-                {
-                    nw.worldState.HasWeapon = true;
-                    nw.worldState.AlertPercentage += 0.5f;
-                    nw.worldState.MoneyAmount -= 3;
-                });
-                
+                w.worldState.HasWeapon = true;
+                w.worldState.AlertPercentage += 0.5f;
+                w.worldState.MoneyAmount -= 3;
+                return w;
             }),
 
 
@@ -259,7 +245,7 @@ public class NewPlanner : MonoBehaviour
             // de las frutillas.
             new GoapAction("Intimidate")
             .SetCost(Intimidate)
-            .SetItem(ItemType.Entity)
+            .SetItem(ItemType.Door)
             .Pre((w) =>
             {
                 return w.worldState.AlertPercentage >= 0.5f
@@ -268,11 +254,8 @@ public class NewPlanner : MonoBehaviour
             })
             .Effect((w) =>
             {
-                return new GoapState(w, (nw) =>
-                {
-                    nw.worldState.ItemPrice = nw.worldState.MoneyAmount;
-                });
-                
+                w.worldState.ItemPrice = w.worldState.MoneyAmount;
+                return w;
             }),
 
             
@@ -287,14 +270,11 @@ public class NewPlanner : MonoBehaviour
             })
             .Effect((w) =>
             {
-                return new GoapState(w, (nw) =>
-                {
-                    nw.worldState.AlertPercentage += 0.5f;
+                w.worldState.AlertPercentage += 0.5f;
 
-                    // OBJETIVO CUMPLIDO
-                    nw.worldState.HasItem = true;
-                });
-                
+                // OBJETIVO CUMPLIDO
+                w.worldState.HasItem = true;
+                return w;
             }),
 
         };
