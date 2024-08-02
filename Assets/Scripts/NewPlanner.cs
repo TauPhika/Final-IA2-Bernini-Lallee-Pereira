@@ -117,11 +117,11 @@ public class NewPlanner : MonoBehaviour
             , { "Open"  , ActionEntity.Open }
             , { "WaitForRestocking" , ActionEntity.Open}
             , { "BuyWeapon" , ActionEntity.PickUp}
-            , { "Bargain" , ActionEntity.Kill}
+            , { "Bargain" , ActionEntity.Open}
             , { "BuyItem" , ActionEntity.PickUp}
             , { "RobItem" , ActionEntity.PickUp}
             , { "Intimidate" , ActionEntity.Open}
-            , { "GoToWork" , ActionEntity.PickUp}
+            , { "GoToWork" , ActionEntity.Open}
         };
         #endregion
 
