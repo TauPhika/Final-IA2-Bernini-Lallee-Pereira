@@ -1590,6 +1590,7 @@ MonoBehaviour:
   adyacent:
   - {fileID: 1578996506}
   - {fileID: 2117886728}
+  - {fileID: 298125414}
 --- !u!4 &895614052
 Transform:
   m_ObjectHideFlags: 0
@@ -3438,7 +3439,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1675848795}
   - component: {fileID: 1675848796}
-  - component: {fileID: 1675848797}
   m_Layer: 0
   m_Name: Pathfinding
   m_TagString: Untagged
@@ -3482,18 +3482,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fef80f45bdd38184ca4273313a817036, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1675848797
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1675848794}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c075a5e8d5f45cb4097258e8112393f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1732808820

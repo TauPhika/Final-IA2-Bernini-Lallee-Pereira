@@ -71,7 +71,7 @@ public class Guy : MonoBehaviour
 	}
 
 	private void Awake() {
-		_ent = GetComponent<Entity>();
+		_ent = GetComponent<Entity>();		
 
         var any = new State<ActionEntity>("any");
 
@@ -82,8 +82,17 @@ public class Guy : MonoBehaviour
         var pickup = new State<ActionEntity>("pickup");
         var open = new State<ActionEntity>("open");
         var success = new State<ActionEntity>("success");
+		var go = new State<ActionEntity>("go");
 
-		kill.OnEnter += a => {
+		go.OnEnter += a =>
+		{ 
+			_ent.GoTo(_target.transform.position);
+			_ent.OnReachDestination += NextStep;
+		};
+
+		go.OnExit += a => { _ent.OnReachDestination -= NextStep; };
+
+        kill.OnEnter += a => {
 			_ent.GoTo(_target.transform.position);
 			_ent.OnHitItem += PerformAttack;
 		};
@@ -95,7 +104,7 @@ public class Guy : MonoBehaviour
 		pickup.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformPickUp; };
 		pickup.OnExit += a => _ent.OnHitItem -= PerformPickUp;
 
-		open.OnEnter += a => { _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformOpen; };
+		open.OnEnter += a => { if (_target != null) print(_target.transform.position); _ent.GoTo(_target.transform.position); _ent.OnHitItem += PerformOpen; };
 		open.OnExit += a => _ent.OnHitItem -= PerformOpen;
 
 		bridgeStep.OnEnter += a => {
@@ -133,6 +142,7 @@ public class Guy : MonoBehaviour
 
 	public void ExecutePlan(List<Tuple<ActionEntity, Item>> plan) {
 		_plan = plan;
+		print(plan.Count);
 		_fsm.Feed(ActionEntity.NextStep);
 	}
 

@@ -21,6 +21,8 @@ public class GoapAction
     public ItemType item;
     public string Name { get; private set; }
 
+    public GoapState temporalState;
+
     public GoapAction(string name)
     {
 
@@ -68,6 +70,7 @@ public class GoapAction
 
     public GoapAction Effect(Func<GoapState, GoapState> e)
     {
+        
         Effects =e;
         return this;
         

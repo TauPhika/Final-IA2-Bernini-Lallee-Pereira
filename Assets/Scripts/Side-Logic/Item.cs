@@ -38,7 +38,7 @@ public class Item : MonoBehaviour
 
 	private void Start ()
     {
-		if (type == ItemType.Frutilla) gameObject.SetActive(false);	
+		//if (type == ItemType.Frutilla) gameObject.SetActive(false);	
 		_wp = Navigation.instance.NearestTo(transform.position);
 		_wp.nearbyItems.Add(this);
 	}

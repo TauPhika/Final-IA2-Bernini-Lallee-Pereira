@@ -110,10 +110,18 @@ public class NewPlanner : MonoBehaviour
          };
 
         #region Opcional
-        var actDict = new Dictionary<string, ActionEntity>() {
+        var actDict = new Dictionary<string, ActionEntity>() 
+        {
               { "Kill"  , ActionEntity.Kill }
             , { "Pickup", ActionEntity.PickUp }
             , { "Open"  , ActionEntity.Open }
+            , { "WaitForRestocking" , ActionEntity.PickUp}
+            , { "BuyWeapon" , ActionEntity.Open}
+            , { "Bargain" , ActionEntity.Kill}
+            , { "BuyItem" , ActionEntity.PickUp}
+            , { "RobItem" , ActionEntity.Kill}
+            , { "Intimidate" , ActionEntity.Open}
+            , { "GoToWork" , ActionEntity.PickUp}
         };
         #endregion
 
@@ -130,7 +138,9 @@ public class NewPlanner : MonoBehaviour
                     Item i2 = everything.FirstOrDefault(i => i.type == a.item);
                     if (actDict.ContainsKey(a.Name) && i2 != null)
                     {
-                        return Tuple.Create(actDict[a.Name], i2);
+                        var x = Tuple.Create(actDict[a.Name], i2);
+                        print(x);
+                        return x;
                     }
                     else
                     {
@@ -148,7 +158,7 @@ public class NewPlanner : MonoBehaviour
         {
             // Va a trabajar para dejar pasar el tiempo y conseguir plata, siempre y cuando no sospechen de el.
             new GoapAction("GoToWork")
-            .SetCost((float)GoToWork)
+            .SetCost(GoToWork)
             .SetItem(ItemType.Office)
             .Pre((w) =>
             {
@@ -167,7 +177,7 @@ public class NewPlanner : MonoBehaviour
             
             // Va a su casa y espera hasta que restockeen las frutillas si es que no estan en stock todavia.
             new GoapAction("WaitForRestocking")
-            .SetCost((float)WaitForRestocking)
+            .SetCost(WaitForRestocking)
             .SetItem(ItemType.Home)
             .Pre((w) =>
             {
@@ -186,7 +196,7 @@ public class NewPlanner : MonoBehaviour
             // Regatea con el verdulero para que le deje las frutillas mas baratas si tiene algo para ofrecer
             // y no es tan sospechoso.
             new GoapAction("Bargain")
-            .SetCost((float)Bargain)
+            .SetCost(Bargain)
             .SetItem(ItemType.Entity)
             .Pre((w) =>
             {
@@ -206,7 +216,7 @@ public class NewPlanner : MonoBehaviour
 
             // Si las frutillas estan disponibles, no es sospechoso y tiene plata, las compra.
             new GoapAction("BuyItem")
-            .SetCost((float)BuyItem)
+            .SetCost(BuyItem)
             .SetItem(ItemType.Frutilla)
             .Pre((w) =>
             {
@@ -226,7 +236,7 @@ public class NewPlanner : MonoBehaviour
 
             // Compra un arma (si la puede pagar y no la tiene ya) para facilitar la coleccion de frutillas.
             new GoapAction("BuyWeapon")
-            .SetCost((float)BuyWeapon)
+            .SetCost(BuyWeapon)
             .SetItem(ItemType.Weapon)
             .Pre((w) =>
             {
@@ -248,7 +258,7 @@ public class NewPlanner : MonoBehaviour
             // Usa el arma y las sospechas sobre el para intimidar al verdulero y que baje el precio
             // de las frutillas.
             new GoapAction("Intimidate")
-            .SetCost((float)Intimidate)
+            .SetCost(Intimidate)
             .SetItem(ItemType.Entity)
             .Pre((w) =>
             {
@@ -268,7 +278,7 @@ public class NewPlanner : MonoBehaviour
             
             // Asalta la verduleria con el arma y se lleva las frutillas si es que estan en stock.
             new GoapAction("RobItem")
-            .SetCost((float)RobItem)
+            .SetCost(RobItem)
             .SetItem(ItemType.Frutilla)
             .Pre((w) =>
             {
